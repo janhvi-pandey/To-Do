@@ -57,7 +57,7 @@ function About() {
           alignItems: "center",
           width: "70vw",
           height:"70vh",
-          textAlign: "center", // Center text
+          textAlign: "center",
         }}
       >
         <h1 style={{ color: "#111", fontSize: "2.5rem", fontWeight: "bold" }}>
@@ -74,7 +74,7 @@ function About() {
           Start managing your time better and enhance your productivity today!
         </p>
 
-        {/* Link to To-Do Page */}
+       
         <div style={{ marginTop: "1.5em" }}>
           <button style={buttonStyle}>
             <Link to="/todo" style={{ color: "white", textDecoration: "none" }}>
