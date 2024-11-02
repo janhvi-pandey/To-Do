@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+
 const container = {
   height: "70vh",
   display: "flex",
@@ -8,11 +9,11 @@ const container = {
   alignItems: "center",
 };
 const linkStyle = {
-  color: 'white',
-  margin: '0 1em',
-  textDecoration: 'none',
-  marginRight:'2rem',
-  fontWeight: 'bold',
+  color: "white",
+  margin: "0 1em",
+  textDecoration: "none",
+  marginRight: "2rem",
+  fontWeight: "bold",
 };
 const pageStyle = {
   height: "50vh",
@@ -28,7 +29,7 @@ const inputStyle = {
   fontSize: "15px",
   padding: "5px ",
   margin: "3px",
-  borderRadius: " 10px 0 0 10px ",
+  borderRadius: "10px 0 0 10px",
   minWidth: "20vw",
 };
 const addbutton = {
@@ -54,69 +55,121 @@ const deleteicon = {
   border: "none",
   background: "none",
 };
+
 function Todo() {
   const [task, setTask] = useState("");
   const [taskList, setTaskList] = useState([]);
 
+  useEffect(() => {
+    fetchtask();
+  }, []);
+
+  const fetchtask = async () => {
+    const response = await fetch("http://localhost:5000/getalltasks");
+    const data = await response.json();
+    setTaskList(data);
+  };
+
   const inputTask = (e) => {
     setTask(e.target.value);
   };
-  const addTask = () => {
+
+  const addTask = async () => {
     if (task !== "") {
-      setTaskList((currList) => [...currList, task]);
-      setTask("");
+      const response = await fetch("http://localhost:5000/addtask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ task: task }),
+      });
+    
+      if (response.ok) {
+        const newTask = await response.json();
+        setTaskList((currList) => [...currList, newTask]); 
+        setTask("");
+      } else {
+        const errorData = await response.json();
+        console.error("Error adding task:", errorData.message);
+      }
     }
   };
-  const deleteTask = (indexToDelete) => {
-    setTaskList((currList) =>
-      currList.filter((task, index) => index !== indexToDelete)
-    );
+
+  const deleteTask = async (id) => {
+    console.log("Delete task ID:", id);
+    try {
+      const response = await fetch(`http://localhost:5000/deletetask/${id}`, {
+        method: "DELETE",
+      });
+      if (response.ok) {
+        setTaskList((currList) => currList.filter((task) => task._id !== id));
+      } else {
+        const errorData = await response.json();
+        console.error("Error deleting task:", errorData.message);
+      }
+    } catch (error) {
+      console.error("Error deleting task:", error.message);
+    }
   };
 
   return (
     <div>
-      <nav style={{ backgroundColor: '#000', padding: '1em', width: '100%', textAlign: 'left' }}>
-        <Link to="/" style={linkStyle}>Home</Link>
-        <Link to="/about" style={linkStyle}>About</Link>
-        <Link to="/todo" style={linkStyle}>ToDo</Link>
+      <nav
+        style={{
+          backgroundColor: "#000",
+          padding: "1em",
+          width: "100%",
+          textAlign: "left",
+        }}
+      >
+        <Link to="/" style={linkStyle}>
+          Home
+        </Link>
+        <Link to="/about" style={linkStyle}>
+          About
+        </Link>
+        <Link to="/todo" style={linkStyle}>
+          ToDo
+        </Link>
       </nav>
       <div style={container}>
-      <div style={pageStyle}>
-        <h1>To Do App</h1>
-        <div>
-          <input
-            type="text"
-            style={inputStyle}
-            onChange={inputTask}
-            value={task}
-            placeholder="Enter your task"
-          />
-          <button style={addbutton} onClick={addTask}>
-            Add
-          </button>
-        </div>
+        <div style={pageStyle}>
+          <h1>To Do App</h1>
+          <div>
+            <input
+              type="text"
+              style={inputStyle}
+              onChange={inputTask}
+              value={task}
+              placeholder="Enter your task"
+            />
+            <button style={addbutton} onClick={addTask}>
+              Add
+            </button>
+          </div>
 
-        <div>
-          <h2>Your Tasks:</h2>
-          {taskList.length === 0 ? (
-            <p style={{ fontSize: "1rem" }}>No Tasks added 😢</p>
-          ) : (
-            <div>
-              {taskList.map((task, index) => (
-                <div style={listStyle} key={index}>
-                  <p>{task}</p>
-                  <button style={deleteicon} onClick={() => deleteTask(index)}>
-                    🗑️
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
+          <div>
+            <h2>Your Tasks:</h2>
+            {taskList.length === 0 ? (
+              <p style={{ fontSize: "1rem" }}>No Tasks added 😢</p>
+            ) : (
+              <div>
+                {taskList.map((task) => (
+                  <div style={listStyle} key={task._id}>
+                   
+                    <p>{task.task}</p>
+                    <button
+                      style={deleteicon}
+                      onClick={() => deleteTask(task._id)}
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>
-    </div>
-   
   );
 }
 
