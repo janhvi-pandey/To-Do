@@ -1,12 +1,19 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 const container = {
-  height: "100vh",
+  height: "70vh",
   display: "flex",
   flexDirection: "column",
   justifyContent: "center",
   alignItems: "center",
 };
-
+const linkStyle = {
+  color: 'white',
+  margin: '0 1em',
+  textDecoration: 'none',
+  marginRight:'2rem',
+  fontWeight: 'bold',
+};
 const pageStyle = {
   height: "50vh",
   width: "50vw",
@@ -67,7 +74,13 @@ function Todo() {
   };
 
   return (
-    <div style={container}>
+    <div>
+      <nav style={{ backgroundColor: '#000', padding: '1em', width: '100%', textAlign: 'left' }}>
+        <Link to="/" style={linkStyle}>Home</Link>
+        <Link to="/about" style={linkStyle}>About</Link>
+        <Link to="/todo" style={linkStyle}>ToDo</Link>
+      </nav>
+      <div style={container}>
       <div style={pageStyle}>
         <h1>To Do App</h1>
         <div>
@@ -102,6 +115,8 @@ function Todo() {
         </div>
       </div>
     </div>
+    </div>
+   
   );
 }
 
